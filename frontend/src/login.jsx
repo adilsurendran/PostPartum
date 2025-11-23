@@ -40,7 +40,8 @@ function Login() {
           navigate("/motherhome");
         }
         else if (res.data.role === "member"){
-        //   localStorage.setItem("student", JSON.stringify(res.data.fulldetails));
+localStorage.setItem("member", JSON.stringify(res.data.fulldetails));
+
            navigate("/memberhome");
         }
         else{

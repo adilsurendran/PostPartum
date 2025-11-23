@@ -73,13 +73,13 @@ function MotherHome() {
           </div>
         );
 
-      case "updateTaskStatus":
-        return (
-          <div className="content-box">
-            <h3>Update Task Status</h3>
-            <p>You can update task progress here. (Dummy page)</p>
-          </div>
-        );
+      // case "updateTaskStatus":
+      //   return (
+      //     <div className="content-box">
+      //       <h3>Update Task Status</h3>
+      //       <p>You can update task progress here. (Dummy page)</p>
+      //     </div>
+      //   );
 
       case "sos":
         return (
@@ -127,10 +127,10 @@ function MotherHome() {
           <p>Task Notification</p>
         </div>
 
-        <div className="card" onClick={() => setActiveSection("updateTaskStatus")}>
+        {/* <div className="card" onClick={() => setActiveSection("updateTaskStatus")}>
           <FaSync className="card-icon" />
           <p>Update Task Status</p>
-        </div>
+        </div> */}
 
         <div className="card sos-card" onClick={() => setActiveSection("sos")}>
           <MdEmergencyShare className="card-icon" />

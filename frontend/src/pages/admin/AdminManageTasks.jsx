@@ -236,7 +236,7 @@ const handleAssignMemberTomorrow = async (member) => {
 
   } catch (error) {
     console.error("Assign error:", error);
-    alert("Server error assigning member");
+    alert(error.response.data.message || "Server error assigning member");
   }
 
   setShowAssignModal(false);

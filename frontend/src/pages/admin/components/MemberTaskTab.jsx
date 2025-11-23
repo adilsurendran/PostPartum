@@ -8,7 +8,7 @@ function MemberTaskTab({ tasks, onDelete, onAssignTomorrow, onEdit, onView }) {
             <th>Task Name</th>
             <th>Description</th>
             <th>Start Date</th>
-            <th>Assigned to</th>
+            <th>Last Assigned to</th>
             <th>Actions</th>
           </tr>
         </thead>

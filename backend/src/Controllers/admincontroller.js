@@ -140,42 +140,6 @@ export const deleteMotherTask = async (req, res) => {
 };
 
 
-
-// export const addMemberTask = async (req, res) => {
-//   try {
-//     const { taskName, description, startDate } = req.body;
-
-//     if (!taskName || !description || !startDate) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "All fields are required.",
-//       });
-//     }
-
-//     const newTask = new MemberTask({
-//       taskName,
-//       description,
-//       startDate,
-//       dailyAssignments: [], // empty initially
-//       yesterdayAssignedMember: ""
-//     });
-
-//     await newTask.save();
-
-//     res.status(201).json({
-//       success: true,
-//       message: "Member task created successfully",
-//       task: newTask
-//     });
-
-//   } catch (error) {
-//     console.error("Add member task error:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Server error while creating task",
-//     });
-//   }
-// };
 export const addMemberTask = async (req, res) => {
   try {
     const { taskName, description, startDate, assignedMember } = req.body;
@@ -220,8 +184,6 @@ export const addMemberTask = async (req, res) => {
   }
 };
 
-
-
 export const getMemberTasks = async (req, res) => {
   try {
     const tasks = await MemberTask.find().sort({ createdAt: -1 });
@@ -239,7 +201,6 @@ export const getMemberTasks = async (req, res) => {
     });
   }
 };
-
 
 
 export const getAvailableMembers = async (req, res) => {
@@ -261,56 +222,6 @@ export const getAvailableMembers = async (req, res) => {
 };
 
 
-// export const assignMemberToday = async (req, res) => {
-//   try {
-//     const { taskId } = req.params;
-//     const { memberName } = req.body;
-
-//     if (!memberName) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "memberName is required",
-//       });
-//     }
-
-//     const today = new Date().toISOString().slice(0, 10);
-
-//     const updatedTask = await MemberTask.findByIdAndUpdate(
-//       taskId,
-//       {
-//         $push: {
-//           dailyAssignments: {
-//             date: today,
-//             memberName,
-//             status: "Pending",
-//           },
-//         },
-//         yesterdayAssignedMember: memberName,
-//       },
-//       { new: true }
-//     );
-
-//     if (!updatedTask) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Task not found",
-//       });
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Member assigned for today",
-//       task: updatedTask,
-//     });
-
-//   } catch (error) {
-//     console.error("Assign member error:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Server error assigning member",
-//     });
-//   }
-// };
 export const assignMemberTomorrow = async (req, res) => {
   try {
     const { taskId } = req.params;
@@ -330,28 +241,38 @@ export const assignMemberTomorrow = async (req, res) => {
 
     const tomorrowDateStr = tomorrow.toISOString().slice(0, 10);
 
-    // ------ Update DB ------
-    const updatedTask = await MemberTask.findByIdAndUpdate(
-      taskId,
-      {
-        $push: {
-          dailyAssignments: {
-            date: tomorrowDateStr,
-            memberName,
-            status: "Pending",
-          },
-        },
-        yesterdayAssignedMember: memberName,
-      },
-      { new: true }
-    );
+    // ------ Find the task first ------
+    const task = await MemberTask.findById(taskId);
 
-    if (!updatedTask) {
+    if (!task) {
       return res.status(404).json({
         success: false,
         message: "Task not found",
       });
     }
+
+    // ------ CHECK IF TOMORROW ALREADY ASSIGNED ------
+    const alreadyAssigned = task.dailyAssignments.some(
+      (a) => a.date === tomorrowDateStr
+    );
+
+    if (alreadyAssigned) {
+      return res.status(400).json({
+        success: false,
+        message: "Task already assigned to a member for tomorrow",
+      });
+    }
+
+    // ------ NOW Add Tomorrow Assignment ------
+    task.dailyAssignments.push({
+      date: tomorrowDateStr,
+      memberName,
+      status: "Pending",
+    });
+
+    task.yesterdayAssignedMember = memberName;
+
+    const updatedTask = await task.save();
 
     return res.status(200).json({
       success: true,
@@ -367,6 +288,7 @@ export const assignMemberTomorrow = async (req, res) => {
     });
   }
 };
+
 
 export const deleteMemberTask = async (req, res) => {
   try {
